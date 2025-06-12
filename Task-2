@@ -1,0 +1,57 @@
+# OIBSIP-Task-2
+# Data analysis of unemployment rates in India using Python, with data cleaning, visualization, and exploration of Covid-19 effects.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+df = pd.read_csv("/content/Unemployment in India.csv")
+df.head()
+df.info()
+df.describe()
+df.isnull().sum()
+
+# Print the shape before and after removing NaN values
+print('Before:', df.shape)
+df_clean = df.dropna()
+print('After:', df_clean.shape)
+print(df_clean.head())
+print("Columns:", df.columns)
+# Convert Date column if it exists
+if 'Date' in df.columns:
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+
+# Basic info
+print("\nDataset Info:")
+print(df.info())
+
+# Check for missing values
+print("\nMissing values:\n", df.isnull().sum())
+
+# Summary statistics
+print("\nSummary statistics:\n", df.describe(include='all'))
+
+# Plot Unemployment Rate over time (national average if available)
+if 'Date' in df.columns and 'Estimated Unemployment Rate (%)' in df.columns:
+    plt.figure(figsize=(12,6))
+    plt.plot(df['Date'], df['Estimated Unemployment Rate (%)'], marker='o')
+    plt.xlabel('Date')
+    plt.ylabel('Unemployment Rate (%)')
+    plt.title('Unemployment Rate in India Over Time')
+    plt.grid(True)
+    plt.show()
+
+# Plot Unemployment Rate by state (if State column exists)
+if 'Region' in df.columns and 'Estimated Unemployment Rate (%)' in df.columns:
+    plt.figure(figsize=(16,8))
+    sns.barplot(
+        x='Estimated Unemployment Rate (%)',
+        y='Region',
+        data=df.groupby('Region')['Estimated Unemployment Rate (%)'].mean().reset_index().sort_values('Estimated Unemployment Rate (%)', ascending=False),
+        palette='viridis'
+    )
+    plt.title('Average Unemployment Rate by State/Region')
+    plt.xlabel('Average Unemployment Rate (%)')
+    plt.ylabel('State/Region')
+    plt.show()
